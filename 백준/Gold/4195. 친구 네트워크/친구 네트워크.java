@@ -5,10 +5,8 @@ import java.util.*;
 
 public class Main {
 
-    static HashMap<String, Integer> map;
-    static int[] parent;
-    static int[] friends;
-
+    static int[] parent; // 대표자 배열
+    static int[] friends; // 친구수 배열
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -17,7 +15,7 @@ public class Main {
         int N = Integer.parseInt(br.readLine());
 
         for (int i = 0; i < N; i++) {
-            map = new HashMap<>();
+        	HashMap<String, Integer> map = new HashMap<>();
             int F = Integer.parseInt(br.readLine());
 
             parent = new int[F*2+1];
@@ -51,24 +49,11 @@ public class Main {
         int x = find(a);
         int y = find(b);
 
-//        if (x < y){
-//            friends[x] += friends[y];
-//            friends[y] = friends[x];
-//            parent[y] = x;
-//        } else if (x > y) {
-//            friends[y] += friends[x];
-//            friends[x] = friends[y];
-//            parent[x] = y;
-//        }
-        if (x != y) {
+        if (x != y) { // 유니온 성공시
             int tmp = friends[x] + friends[y];
             friends[y] = friends[x] = tmp;
-        } else {
-            int tmp = Math.max(friends[x], friends[y]);
-            friends[y] = friends[x] = tmp;
-        }
+        } 
         parent[y] = x;
         return friends[x];
     }
 }
-
