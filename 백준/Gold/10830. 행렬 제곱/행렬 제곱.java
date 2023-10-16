@@ -1,22 +1,25 @@
-import java.util.Arrays;
-import java.util.Scanner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.StringTokenizer;
 
 public class Main {
 
     static int[][][] dp;
     static int[] dpSub;
-    public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        int N = sc.nextInt();
-        long B = sc.nextLong();
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        int N = Integer.parseInt(st.nextToken());
+        long B = Long.parseLong(st.nextToken());
         int[][] arr = new int[N][N];
         int[][] ans = new int[N][N];
 
         for (int i = 0; i < N; i++) {
+            st = new StringTokenizer(br.readLine());
             for (int j = 0; j < N; j++) {
-                arr[i][j] = sc.nextInt() % 1000;
+                arr[i][j] = Integer.parseInt(st.nextToken()) % 1000;
                 if (i==j) ans[i][j] = 1;
             }
         }
