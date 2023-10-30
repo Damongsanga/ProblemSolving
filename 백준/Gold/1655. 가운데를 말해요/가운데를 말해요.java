@@ -1,44 +1,31 @@
-import java.io.*;
-import java.util.*;
+
+import java.util.Collections;
+import java.util.PriorityQueue;
+import java.util.Scanner;
 
 public class Main {
 
-	public static void main(String[] args) throws IOException {
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		int N = Integer.parseInt(br.readLine());
-		// 작은 값들을 담을 maxpq
-		PriorityQueue<Integer> maxpq = new PriorityQueue<>(Collections.reverseOrder());
-		// 큰 값들을 담을 minpq
-		PriorityQueue<Integer> minpq = new PriorityQueue<>();
-		
+	public static void main(String[] args) {
+		Scanner sc = new Scanner(System.in);
 		StringBuilder sb = new StringBuilder();
-		// 첫번째 값 넣기
-		maxpq.add(Integer.parseInt(br.readLine()));
-		sb.append(maxpq.peek() + "\n");		
-		
-		// 지금까지 쌓인 숫자 갯수가 홀수냐 짝수냐로 분기
-		// 짝수일 경우 앞쪽의 수를 구하라고 했기 때문에 maxpq에서 peek 한 값을 출력해야
-		for (int i = 1; i < N; i++) {
-			int n = Integer.parseInt(br.readLine());
-			if (maxpq.size() == minpq.size()) {
-				if (n > minpq.peek()) {
-					maxpq.add(minpq.poll());
-					minpq.add(n);
-				} else {
-					maxpq.add(n);
-				}
-			} else {
-				if (n >= maxpq.peek()) {
-					minpq.add(n);
-				} else {
-					minpq.add(maxpq.poll());
-					maxpq.add(n);
-				}
-			}
-			sb.append(maxpq.peek() + "\n");
-		}
-		
-		System.out.println(sb);
-	}
+		int N = sc.nextInt();
 
+		PriorityQueue<Integer> min = new PriorityQueue<>();
+		PriorityQueue<Integer> max = new PriorityQueue<>(Collections.reverseOrder());
+
+		for (int i = 0; i < N; i++) {
+			if (i % 2 == 0)
+				max.add(sc.nextInt());
+			else
+				min.add(sc.nextInt());
+			if (!min.isEmpty() && max.peek() > min.peek()) {
+				min.add(max.poll());
+				max.add(min.poll());
+			}
+			sb.append(max.peek()).append("\n");
+
+		}
+		System.out.println(sb);
+
+	}
 }
