@@ -1,52 +1,46 @@
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.StringTokenizer;
 
 public class Main {
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException{
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		StringTokenizer st = new StringTokenizer(br.readLine());
-
 		int N = Integer.parseInt(st.nextToken());
 		int M = Integer.parseInt(st.nextToken());
-
-		int[][] map = new int[N][M];
-		int[][] value = new int[N][M];
-
+		
+		int[][] arr = new int[N][M];
 		for (int i = 0; i < N; i++) {
 			st = new StringTokenizer(br.readLine());
 			for (int j = 0; j < M; j++) {
-				map[i][j] = Integer.parseInt(st.nextToken());
+				arr[i][j] = Integer.parseInt(st.nextToken());
 			}
 		}
-
-		value[0][0] = map[0][0];
-
+		
+		int[][][] dp = new int[N][M][2];
+		
+		dp[0][0][0] = arr[0][0]; 
+		dp[0][0][1] = arr[0][0]; 
 		for (int i = 1; i < M; i++) {
-			value[0][i] = value[0][i - 1] + map[0][i];
+			dp[0][i][0] += arr[0][i] + dp[0][i-1][0];
+			dp[0][i][1] += arr[0][i] + dp[0][i-1][1];
 		}
-
+		
 		for (int i = 1; i < N; i++) {
-			value[i][0] = value[i - 1][0] + map[i][0];
-
+			dp[i][0][0] = Math.max(dp[i-1][0][0], dp[i-1][0][1]) + arr[i][0];
 			for (int j = 1; j < M; j++) {
-				value[i][j] = Math.max(value[i - 1][j], value[i][j - 1]) + map[i][j];
+				dp[i][j][0] = Math.max(Math.max(dp[i-1][j][0], dp[i-1][j][1]), dp[i][j-1][0]) + arr[i][j];
 			}
-
-			int temp = value[i - 1][M - 1] + map[i][M - 1];
-
-			value[i][M - 1] = Math.max(value[i][M - 1], temp);
-
-			for (int j = M - 2; j >= 0; j--) {
-				temp = Math.max(temp, value[i - 1][j]) + map[i][j];
-				value[i][j] = Math.max(temp, value[i][j]);
+			dp[i][M-1][1] = Math.max(dp[i-1][M-1][0], dp[i-1][M-1][1]) + arr[i][M-1];
+			for (int j = M-2; j >= 0; j--) {
+				dp[i][j][1] = Math.max(Math.max(dp[i-1][j][0], dp[i-1][j][1]), dp[i][j+1][1]) + arr[i][j];
 			}
-
 		}
-		System.out.println(value[N - 1][M - 1]);
-
+		
+		System.out.println(Math.max(dp[N-1][M-1][0], dp[N-1][M-1][1]));
+	
 	}
 }
