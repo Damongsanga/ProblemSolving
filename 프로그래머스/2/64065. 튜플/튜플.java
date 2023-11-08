@@ -10,10 +10,8 @@ class Solution {
         for (int i = 0; i < N; i++){
             String[] tmp = strings[i].split(",");
             for (int j = 0; i <= i; j++){
-                int setSize = set.size();
                 int tmpInt = Integer.parseInt(tmp[j]);
-                set.add(tmpInt);
-                if (set.size() != setSize){
+                if (set.add(tmpInt)){
                     answer[i] = tmpInt;
                     break;
                 }
