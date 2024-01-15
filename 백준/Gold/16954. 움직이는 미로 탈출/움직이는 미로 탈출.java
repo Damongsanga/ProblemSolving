@@ -5,14 +5,16 @@ import java.util.*;
 
 public class Main {
 
-    static int[] rr = {-1,-1,-1,0,1,1,1,0,0};
-    static int[] rc = {1,0,-1,-1,-1,0,1,1,0};
+    static int[] rr = {-1,-1,-1,0,1,1,1,0,0}; // 8방향 + 제자리
+    static int[] rc = {1,0,-1,-1,-1,0,1,1,0}; // 8방향 + 제자리
     static int N = 8;
     static int answer = 0;
+    
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         char[][][] arr = new char[N][N][N];
+        char[] emptyList = {'.','.','.','.','.','.','.','.'};
         for (int r = 0; r < N; r++) {
             String tmp = br.readLine();
             for (int c = 0; c < N; c++) {
@@ -21,9 +23,9 @@ public class Main {
         }
 
         for (int i = 1; i < N; i++) {
-            Arrays.fill(arr[i][0], '.');
+            arr[i][0] = emptyList;
             for (int r = 1; r < N; r++) {
-                arr[i][r] = Arrays.copyOf(arr[i-1][r-1], N);
+                arr[i][r] = arr[i-1][r-1];
             }
         }
 
@@ -34,12 +36,14 @@ public class Main {
     }
 
     static void DFS(int count, int r, int c, char[][][] arr, boolean[][][] visited){
+
         if (answer == 1) return;
 
         if (count == N) {
             answer = 1;
             return;
         }
+
 
         for (int i = 0; i < 9; i++) {
             int nr = r + rr[i];
