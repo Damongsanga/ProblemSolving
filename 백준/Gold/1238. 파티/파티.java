@@ -6,6 +6,22 @@ public class Main {
     static int N;
     static int M;
     static int X;
+
+    static class Edge implements Comparable<Edge> {
+        int from; int to; int dist;
+
+        public Edge(int from, int to, int dist) {
+            this.from = from;
+            this.to = to;
+            this.dist = dist;
+        }
+
+        @Override
+        public int compareTo(Edge o) {
+            return this.dist - o.dist;
+        }
+    }
+
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
@@ -25,15 +41,13 @@ public class Main {
         int[] from = new int[N+1];
         Arrays.fill(from, INF);
         dijsktra(from, arr, true);
-
+        
         int[] to = new int[N+1];
         Arrays.fill(to, INF);
         dijsktra(to, arr, false);
-
-
+        
         int max = 0;
         for (int i = 1; i <= N; i++) {
-//            if(from[i] == INF || to[i] == INF) continue;
             from[i] += to[i];
             max = Math.max(max, from[i]);
         }
@@ -42,18 +56,24 @@ public class Main {
 
     }
 
-    private static void dijsktra(int[] visited, int[][] arr, boolean flag) {
-        Queue<Integer> pk = new PriorityQueue<>();
-        pk.add(X);
-        visited[X] = 0;
+    private static void dijsktra(int[] dist, int[][] arr, boolean flag) {
+        Queue<Edge> pk = new PriorityQueue<>();
+        boolean[] visited =new boolean[N+1];
+
+        pk.add(new Edge(X, X, 0));
+        dist[X] = 0;
 
         while(!pk.isEmpty()){
-            int now = pk.poll();
+            Edge e = pk.poll();
+            int now = e.to;
+            visited[now] = true;
+
             for (int i = 0; i <= N; i++) {
-                int dist = flag? arr[now][i] : arr[i][now];
-                if (dist > 0 && visited[now] + dist < visited[i]){
-                    visited[i] = visited[now] + dist;
-                    pk.add(i);
+                int d = flag? arr[now][i] : arr[i][now];
+                if (visited[i]) continue;
+                if (d > 0 && dist[now] + d < dist[i]){
+                    dist[i] = dist[now] + d;
+                    pk.add(new Edge(now, i, dist[i]));
                 }
             }
         }
