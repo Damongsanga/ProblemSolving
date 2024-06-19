@@ -17,14 +17,20 @@ class Solution {
     static int C;
     static int[][][] visited;
 
-    // r, c는 로봇이 차지하는 2개의 칸 중 입구에 가까운 칸이며, dir는 0, 1만 가진다
     static class Robot{
-        int r; int c; int dir; int count;
+        Node back; int dir; int count;
         Robot(int r, int c, int dir, int count){
-            this.r = r;
-            this.c = c;
+            this.back = new Node(r, c);
             this.dir = dir;
             this.count = count;
+        }
+
+        static class Node{
+            int r; int c;
+            Node(int r, int c) {
+                this.r = r;
+                this.c = c;
+            }
         }
 
     }
@@ -46,34 +52,22 @@ class Solution {
         while(!queue.isEmpty()){
             Robot robot = queue.poll();
 
-            int r = robot.r;
-            int c = robot.c;
+            int r = robot.back.r;
+            int c = robot.back.c;
             int dir = robot.dir;
 
-            if ((r + rr[dir] == R-1 && c + rc[dir] == C-1) || (r == R-1 && c == C-1)) return robot.count;
+            if (r + rr[dir] == R-1 && c + rc[dir] == C-1) return robot.count;
+            if (r == R-1 && c == C-1) return robot.count;
+
 
             for (int i = 0; i < 4; i++) {
                 move(board, queue, new Robot(r + rr[i], c + rc[i], dir, robot.count));
             }
 
-            if (dir == 0){
-                if (r-1 >= 0 && board[r-1][c+1] == 0)
-                    move(board, queue, new Robot(r-1, c, 1, robot.count));
-                if (r-1 >= 0 && board[r-1][c] == 0)
-                    move(board, queue, new Robot(r-1, c+1, 1, robot.count));
-                if (r+1 < R && board[r+1][c+1] == 0)
-                    move(board, queue, new Robot(r, c, 1, robot.count));
-                if (r+1 < R && board[r+1][c] == 0)
-                    move(board, queue, new Robot(r, c+1, 1, robot.count));
-            } else {
-                if (c-1 >= 0 && board[r+1][c-1] == 0)
-                    move(board, queue, new Robot(r, c-1, 0, robot.count));
-                if (c-1 >= 0 && board[r][c-1] == 0)
-                    move(board, queue, new Robot(r+1, c-1, 0, robot.count));
-                if (c+1 < C && board[r+1][c+1] == 0)
-                    move(board, queue, new Robot(r, c, 0, robot.count));
-                if (c+1 < C && board[r][c+1] == 0)
-                    move(board, queue, new Robot(r+1, c, 0, robot.count));
+            if (dir == 0 && r+rr[1] < R && board[r+rr[1]][c+rc[1]] == 0){
+                move(board, queue, new Robot(r + rr[dir], c + rc[dir], 1, robot.count));
+            } else if (dir == 1 && c+rc[0] < C && board[r+rr[0]][c+rc[0]] == 0) {
+                move(board, queue, new Robot(r + rr[dir], c + rc[dir], 0, robot.count));
             }
         }
 
@@ -81,16 +75,17 @@ class Solution {
     }
 
 
+
     private static void move(int[][] board, Queue<Robot> queue, Robot robot) {
-        int nr1 = robot.r;
-        int nc1 = robot.c;
-        int nr2 = robot.r + rr[robot.dir];
-        int nc2 = robot.c + rc[robot.dir];
-        if (!(nr1 >= 0 && nc1 >= 0 && nr2 < R && nc2 < C)) return;
+        int nr1 = Math.min(robot.back.r, robot.back.r + rr[robot.dir]);
+        int nc1 = Math.min(robot.back.c, robot.back.c + rc[robot.dir]);
+        int nr2 = Math.max(robot.back.r, robot.back.r + rr[robot.dir]);
+        int nc2 = Math.max(robot.back.c, robot.back.c + rc[robot.dir]);
+        if (!(nr1 >= 0 && nr2 >= 0 && nc1 >= 0 && nc2 >= 0 && nr1 < R && nr2 < R && nc1 < C && nc2 < C)) return;
         if (board[nr1][nc1] == 1 || board[nr2][nc2] == 1) return;
-        if (visited[nr1][nc1][robot.dir] <= robot.count) return;
-        visited[nr1][nc1][robot.dir] = robot.count;
-        queue.add(new Robot(nr1, nc1, robot.dir, robot.count+1));
+        if (visited[nr1][nc1][robot.dir % 2] <= robot.count) return;
+        visited[nr1][nc1][robot.dir % 2] = robot.count;
+        queue.add(new Robot(nr1, nc1, robot.dir % 2, robot.count+1));
     }
 
 }
