@@ -1,0 +1,6 @@
+SELECT ANIMAL_ID, i.ANIMAL_TYPE, i.NAME
+FROM ANIMAL_INS i JOIN ANIMAL_OUTS USING (ANIMAL_ID)
+WHERE SEX_UPON_OUTCOME = (CASE 
+    WHEN SEX_UPON_INTAKE="Intact Male" THEN "Neutered Male"
+    WHEN SEX_UPON_INTAKE="Intact Female" THEN "Spayed Female"                   
+    END)
