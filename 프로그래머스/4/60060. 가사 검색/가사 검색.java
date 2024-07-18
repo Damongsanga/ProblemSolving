@@ -2,113 +2,100 @@ import java.util.*;
 
 class Solution {
     public int[] solution(String[] words, String[] queries) {
-        int[] answer = new int[queries.length];
-
-        // 인풋
-        Map<Integer, List<String>> frontMap = new HashMap<>();
-        Map<Integer, List<String>> backMap = new HashMap<>();
-        for (String word : words){
-            int len = word.length();
-            frontMap.putIfAbsent(len, new ArrayList<>());
-            frontMap.get(len).add(word);
-            backMap.putIfAbsent(len, new ArrayList<>());
-            backMap.get(len).add(new StringBuilder(word).reverse().toString());
+        int[] answer = {};
+        Tri[] root = new Tri[10001];
+        for(int i = 0; i < words.length; i++) {
+            int length = words[i].length();
+            if(root[length] == null) {
+                root[length] = new Tri();
+            }
+            root[length].add(words[i]);
         }
 
-        // 정렬
-        for (List<String> list :frontMap.values()){
-            Collections.sort(list);
+        answer = new int[queries.length];
+        for(int i = 0; i < queries.length; i++) {
+            int len = queries[i].length();
+            if(root[len] == null) answer[i] = 0;
+            else answer[i] = root[queries[i].length()].find(queries[i]);
         }
-        for (List<String> list :backMap.values()){
-            Collections.sort(list);
-        }
-
-        // 쿼리
-        for (int i = 0; i < queries.length; i++) {
-            String query = queries[i];
-            if (query.charAt(0) != '?') answer[i] = find(query, frontMap);
-            else answer[i] = find(new StringBuilder(query).reverse().toString(), backMap);
-        }
-
         return answer;
     }
 
-    private int find(String query, Map<Integer, List<String>> frontMap) {
-        List<String> list = frontMap.get(query.length());
-        if (list == null) return 0;
-        int found = search(query, list);
-        if (found == -1) return 0;
+    class Tri {
+        int cnt;
+        Tri[] frontNext;
+        Tri[] backNext;
 
-        return searchRight(query, list, found) - searchLeft(query, list, found) + 1;
+        Tri() {
+            this.cnt = 0;
+            frontNext = new Tri[26];
+            backNext = new Tri[26];
+        }
 
-    }
+        public void add(String s) {
+            this.cnt++;
+            addFront(s);
+            addBack(s);
+        }
 
-    private int searchRight(String query, List<String> list, int l) {
-        int r = list.size()-1;
-        int rightIdxBoundary = l;
-        while(l <= r){
-            int mid = l + (r-l) / 2;
-            int res = compare(list.get(mid), query);
-            if (res == 0) {
-                rightIdxBoundary = mid;
-                l = mid+1;
-            } else if (res == 1) {
-                r = mid-1;
-            } else {
-                l = mid+1;
+        private void addFront(String s) {
+            Tri cur = this;
+            for(char ch : s.toCharArray()) {
+                if(cur.frontNext[ch-'a'] == null) {
+                    cur.frontNext[ch-'a'] = new Tri();
+                    cur.frontNext[ch-'a'].cnt = 1;
+                }
+                else {
+                    cur.frontNext[ch-'a'].cnt++;
+                }
+                cur = cur.frontNext[ch-'a'];
             }
         }
-        return rightIdxBoundary;
-    }
 
-    private int searchLeft(String query, List<String> list, int r) {
-        int l = 0;
-        int leftIdxBoundary = r;
-        
-        while(l <= r){
-            int mid = l + (r-l) / 2;
-            int res = compare(list.get(mid), query);
-            if (res == 0) {
-                leftIdxBoundary = mid;
-                r = mid-1;
-            } else if (res == 1) {
-                r = mid-1;
-            } else {
-                l = mid+1;
+        private void addBack(String s) {
+            Tri cur = this;
+            for(int i = s.length()-1; i >= 0; i--) {
+                char ch = s.charAt(i);
+                if(cur.backNext[ch-'a'] == null) {
+                    cur.backNext[ch-'a'] = new Tri();
+                    cur.backNext[ch-'a'].cnt = 1;
+                }
+                else {
+                    cur.backNext[ch-'a'].cnt++;
+                }
+                cur = cur.backNext[ch-'a'];
             }
         }
-        return leftIdxBoundary;
-    }
 
-    private int search(String query, List<String> list) {
-        int l = 0;
-        int r = list.size()-1;
-        int foundIdx = -1;
-
-        while(l <= r){
-            int mid = l + (r-l) / 2;
-            int res = compare(list.get(mid), query);
-            if (res == 0) {
-                foundIdx = mid;
-                break;
-            } else if (res == 1) {
-                r = mid-1;
-            } else {
-                l = mid+1;
+        public int find(String s) {
+            if(s.startsWith("?")) {
+                return findBack(s);
+            }
+            else {
+                return findFront(s);
             }
         }
-        return foundIdx;
-    }
 
-
-    private int compare(String word, String query){
-        for (int i = 0; i < word.length(); i++) {
-            if (query.charAt(i) == '?') return 0; // 쿼리에 해당하는 단어면 0 반환
-            if (word.charAt(i) > query.charAt(i)) return 1; // 쿼리보다 뒷단어면 1
-            else if (word.charAt(i) < query.charAt(i)) return -1; // 쿼리보다 앞단어면 -1
+        private int findFront(String s) {    
+            Tri t = this;           
+            for(int i = 0; i < s.length(); i++) {
+                char ch = s.charAt(i);
+                if(ch == '?') return t.cnt;
+                if(t.frontNext[ch-'a'] == null) return 0;
+                t = t.frontNext[ch-'a'];                
+            }
+            return 0;
         }
-        return 0;
+
+        private int findBack(String s) {   
+            Tri t = this;
+            for(int i = s.length()-1; i >= 0; i--) {
+                char ch = s.charAt(i);
+                if(ch == '?') return t.cnt;
+                if(t.backNext[ch-'a'] == null) return 0;
+                t = t.backNext[ch-'a'];             
+            }
+            return 0;
+        }
     }
-
-
 }
